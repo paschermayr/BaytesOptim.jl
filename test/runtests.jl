@@ -1,6 +1,21 @@
-using BaytesOptim
+############################################################################################
+# Import External PackagesJK
 using Test
+#=
+using Random: Random, AbstractRNG, seed!
+using Statistics
 
-@testset "BaytesOptim.jl" begin
-    # Write your tests here.
+############################################################################################
+# Import Baytes Packages
+using BaytesOptim
+import BaytesOptim:
+
+
+############################################################################################
+# Include Files
+include("TestHelper.jl")
+=#
+############################################################################################
+# Run Tests
+@testset "All tests" begin
 end
