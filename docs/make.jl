@@ -11,15 +11,16 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://paschermayr.github.io/BaytesOptim.jl",
-        edit_link="master",
+        edit_link="main",
         assets=String[],
     ),
     pages=[
         "Home" => "index.md",
+        "Introduction" => "intro.md",
     ],
 )
 
 deploydocs(;
     repo="github.com/paschermayr/BaytesOptim.jl",
-    devbranch="master",
+    devbranch="main",
 )
