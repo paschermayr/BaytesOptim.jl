@@ -1,0 +1,13 @@
+name = "BaytesOptim"
+uuid = "c78c806d-0713-4f4e-8b87-f7023233ea83"
+authors = ["Patrick Aschermayr <p.aschermayr@gmail.com>"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
