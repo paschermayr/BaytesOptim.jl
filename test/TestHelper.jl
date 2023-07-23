@@ -58,7 +58,7 @@ function (objective::Objective{<:ModelWrapper{M}})(θ::NamedTuple) where {M<:Uni
     for t in 1:size(data, 2)
         ll += logpdf(d, data[:,t])
     end
-    return ll
+    return ll + lp
 #    return sum( logpdf(d, data[:,t]) for t in 1:size(data, 2))
 end
 
