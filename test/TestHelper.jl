@@ -29,7 +29,7 @@ param = (;
         [1., 2., 3.]
     ),
     scale = Param(
-        [Normal(1, 10.), Normal(1, 10.), Normal(1, 10.)],
+        [truncated( Normal(1, 10.), 0, 10), truncated( Normal(1, 10.), 0, 10), truncated( Normal(1, 10.), 0, 10)],
         [1., 2., 3.],
     ),
     ρ = Param(
