@@ -1,4 +1,3 @@
-
 ############################################################################################
 """
 $(TYPEDEF)
@@ -11,11 +10,11 @@ $(TYPEDFIELDS)
 struct OptimDefault{T<:NamedTuple, G, I<:ModelWrappers.AbstractInitialization, U<:BaytesCore.UpdateBool}
     "Tuning Arguments for individual Optimizer"
     kernel::T
-    "Gradient backend used in MCMC step. Not used if Metropolis sampler is chosen."
+    "Gradient backend used in Optimization step. Not used if Metropolis sampler is chosen."
     GradientBackend::G
     "Method to obtain initial Modelparameter, see 'AbstractInitialization'."
     init::I
-    "Boolean if generate(_rng, objective) for corresponding model is stored in MCMC Diagnostics."
+    "Boolean if generate(_rng, objective) for corresponding model is stored in Optimization Diagnostics."
     generated::U
     function OptimDefault(;
         kernel = (;),
@@ -44,7 +43,7 @@ Stores information for proposal step.
 $(TYPEDFIELDS)
 """
 struct Optimizer{M<:OptimKernel,N<:OptimTune} <: AbstractAlgorithm
-    "MCMC sampler"
+    "Optimizer"
     kernel::M
     "Tuning configuration for kernel."
     tune::N
@@ -61,16 +60,20 @@ function Optimizer(
     info::BaytesCore.SampleDefault = BaytesCore.SampleDefault()
 ) where {M<:OptimKernel}
     @unpack GradientBackend, generated = default
-   ##	If a valid AD backend is provided, change it to an AutomaticDifftune Object
+
+    ## Initiate Optimization Algorithm and Algorithm-specific tuning struct
+    optimconfig = init(AbstractConfiguration, kernel, objective; default.kernel...)
+    ##	If a valid AD backend is provided, change it to an AutomaticDifftune Object
    if isa(GradientBackend, Symbol)
-        GradientBackend = AutomaticDiffTune(objective, GradientBackend, BaytesDiff.DiffOrderOne())
+        GradientBackend = AutomaticDiffTune(objective, GradientBackend, optimconfig.difforder)
     end
-    ## Initiate Optimization Algorithm
+    ## Initiate Optimization Algorithm and Algorithm-specific tuning struct
+    optimconfig = init(AbstractConfiguration, kernel, objective; default.kernel...)
+    kerneltune = init(AbstractTune, optimconfig, objective)
     optim = init(kernel, objective, GradientBackend)
-    ## Initial Optimization Tune struct
-    kerneltune = init(AbstractConfiguration, kernel, objective; default.kernel...)
-    optimtune = OptimTune(objective.tagged, kerneltune)
-    ## Return MCMC container
+    ## Initial General optimization tune struct
+    optimtune = OptimTune(objective.tagged, kerneltune, generated)
+    ## Return Optim container
     return Optimizer(optim, optimtune)
 end
 
@@ -88,12 +91,25 @@ Propose new parameter with optimizer. If update=true, objective function will be
 function propose(_rng::Random.AbstractRNG, optim::Optimizer, objective::Objective)
     #!NOTE: Temperature is fixed for propose() step and will not be adjusted
     ## Make Proposal step
-    θᵤᵖ, diagnostics = propagate(
+    resultᵖ, kernel_diagnostics = propagate(
         _rng, optim.kernel, optim.tune, objective
     )
     #Update Kernel and model parameter
-    optim.kernel.θᵤ = θᵤᵖ
-    ModelWrappers.unflatten_constrain!(objective.model, optim.tune.tagged, θᵤᵖ)
+    optim.kernel.result = resultᵖ
+    ModelWrappers.unflatten_constrain!(objective.model, optim.tune.tagged, resultᵖ.θᵤ)
+    # Return Diagnostics
+    diagnostics = OptimDiagnostics(
+        BaytesCore.BaseDiagnostics(
+            optim.kernel.result.ℓθᵤ,
+            objective.temperature,
+            ModelWrappers.predict(_rng, optim, objective),
+            optim.tune.iter.current
+        ),
+        kernel_diagnostics,
+        ModelWrappers.generate(_rng, objective, optim.tune.generated),
+        ModelWrappers.generate(_rng, optim, objective, optim.tune.generated)
+    )
+
     return objective.model.val, diagnostics
 end
 
@@ -116,10 +132,10 @@ function propose!(
 ) where {D, T<:ProposalTune}
     ## Update Proposal tuning information that is shared among algorithms
     @unpack temperature, update = proposaltune
-    ## Update Objective with new model parameter from other MCMC samplers and/or new/latent data
+    ## Update Objective with new model parameter from other Optimizer and/or new/latent data
     objective = Objective(model, data, optim.tune.tagged, temperature)
     update!(optim.kernel, objective, update) #Update Kernel with current objective/configs
-    ## Compute MCMC step
+    ## Compute Optimization step
     val, diagnostics = propose(_rng, optim, objective)
     ## Update Model parameter
     model.val = val

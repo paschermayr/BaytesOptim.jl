@@ -15,7 +15,8 @@ using BaytesCore:
     UpdateFalse,
     update,
     SampleDefault,
-    ProposalTune
+    ProposalTune,
+    Iterator
 
 import BaytesCore:
     BaytesCore,
@@ -83,6 +84,7 @@ using NLSolversBase, Optim
 ################################################################################
 #Abstract types to be dispatched in Examples section
 abstract type OptimKernel <: AbstractKernel end
+abstract type OptimKernelDiagnostics <: AbstractDiagnostics end
 
 include("Core/Core.jl")
 include("Kernels/Kernels.jl")
@@ -113,8 +115,9 @@ export
     #BaytesDiff
     checkfinite,
 
-    #MCMC
+    #Optimizer
     OptimKernel,
-    Optimiagnostics
+    Optimiagnostics,
+    OptimKernelDiagnostics
     
 end
