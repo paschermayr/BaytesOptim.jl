@@ -38,6 +38,7 @@ function init(
     )
 end
 
+#=
 ############################################################################################
 """
 $(SIGNATURES)
@@ -69,8 +70,8 @@ function propagate(
     ## Pack and return output
     return BaytesDiff.ℓDensityResult(objective, θᵤᵖ), diagnostics
 end
-
+=#
 ############################################################################################
 export 
-    OptimLBFG,
-    propagate
+    OptimLBFG#,
+#    propagate

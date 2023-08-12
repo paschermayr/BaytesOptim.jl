@@ -79,7 +79,7 @@ using ArgCheck: ArgCheck, @argcheck
 using SimpleUnPack: SimpleUnPack, @unpack, @pack!
 
 # Import Solver
-using NLSolversBase, Optim
+#using NLSolversBase, Optim
 
 ################################################################################
 #Abstract types to be dispatched in Examples section

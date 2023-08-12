@@ -28,7 +28,6 @@ opt = Optimizer(
 ) 
 
 objective_inital(objective_inital.model.val)
-
 θᵤ_proposed, diag = propagate(
     _RNG, opt.kernel, opt.tune, objective_inital
 )
