@@ -38,7 +38,18 @@ function init(
     )
 end
 
-#=
+############################################################################################
+"""
+$(SIGNATURES)
+Internal optimization function via 'Optim' and 'NLSolversBase' - both have to be loaded and are used as an Extension if used.
+
+# Examples
+```julia
+```
+
+"""
+function _optimize end
+
 ############################################################################################
 """
 $(SIGNATURES)
@@ -61,17 +72,21 @@ function propagate(
         end
         -result.ℓθᵤ + (0.5 * magnitude_penalty * sum(abs2, θᵤ))
     end
+
+    θᵤᵖ, _ = _optimize(kernel.result.θᵤ, fg!, iterations)
+    #=
     optim_objective = NLSolversBase.OnceDifferentiable(NLSolversBase.only_fg!(fg!), kernel.result.θᵤ)
     opt = Optim.optimize(optim_objective, kernel.result.θᵤ, Optim.LBFGS(),
                         Optim.Options(; iterations = iterations))
     θᵤᵖ = Optim.minimizer(opt)
+    =#
     # Store Diagnostics
     diagnostics = DiagnosticsLBFG()
     ## Pack and return output
     return BaytesDiff.ℓDensityResult(objective, θᵤᵖ), diagnostics
 end
-=#
+
 ############################################################################################
 export 
-    OptimLBFG#,
-#    propagate
+    OptimLBFG,
+    propagate
