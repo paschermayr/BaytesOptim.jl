@@ -72,14 +72,8 @@ function propagate(
         end
         -result.ℓθᵤ + (0.5 * magnitude_penalty * sum(abs2, θᵤ))
     end
-
+    # Optimize Parameter - used via Extensions Optim/NLSolversBase
     θᵤᵖ, _ = _optimize(kernel.result.θᵤ, fg!, iterations)
-    #=
-    optim_objective = NLSolversBase.OnceDifferentiable(NLSolversBase.only_fg!(fg!), kernel.result.θᵤ)
-    opt = Optim.optimize(optim_objective, kernel.result.θᵤ, Optim.LBFGS(),
-                        Optim.Options(; iterations = iterations))
-    θᵤᵖ = Optim.minimizer(opt)
-    =#
     # Store Diagnostics
     diagnostics = DiagnosticsLBFG()
     ## Pack and return output
