@@ -28,6 +28,7 @@ param = (;
         MvNormal([0., 0., 0.], LinearAlgebra.diagm(repeat([10.], 3) ) ), 
         [1., 2., 3.]
     ),
+    #!Note: Scale is the standard deviation, not variance
     scale = Param(
         [truncated( Normal(1, 10.), 0, 10), truncated( Normal(1, 10.), 0, 10), truncated( Normal(1, 10.), 0, 10)],
         [1., 2., 3.],
@@ -62,3 +63,20 @@ function (objective::Objective{<:ModelWrapper{M}})(θ::NamedTuple) where {M<:Uni
 #    return sum( logpdf(d, data[:,t]) for t in 1:size(data, 2))
 end
 
+function ModelWrappers.generate(_rng::Random.AbstractRNG, objective::Objective{<:ModelWrapper{MultiNormal}})
+    @unpack model, data = objective
+    @unpack μ  = model.val
+    return μ[1]
+end
+
+function ModelWrappers.generate(_rng::Random.AbstractRNG, algorithm::Optimizer, objective::Objective{<:ModelWrapper{MultiNormal}})
+    @unpack model, data = objective
+    @unpack μ, scale = model.val
+    return μ[1] + 100000
+end
+
+function ModelWrappers.predict(_rng::Random.AbstractRNG, objective::Objective{<:ModelWrapper{MultiNormal}})
+    @unpack model, data = objective
+    @unpack scale = model.val
+	return scale[end]
+end

@@ -85,9 +85,6 @@ using BaytesCore
 _opt = _oc(_RNG, objective.model, objective.data, BaytesCore.ProposalTune(1.), BaytesCore.SampleDefault())
 Optimizer(OptimLBFG, :μ)
 
-#?
-# infer(OptimDiagnostics, opt.kernel)
-
 infer(
     _RNG,
     AbstractDiagnostics,
@@ -167,3 +164,61 @@ _vals, diag = propose!(
 diag.generated_algorithm
 diag.generated
 diag.base.prediction
+
+############################################################################################
+############################################################################################
+############################################################################################
+myparameter1 = (:μ, :scale, :ρ)
+myparameter2 = (:ρ)
+
+mod1 = ModelWrapper(MultiNormal(), param, (;), FlattenDefault())
+mod2 = ModelWrapper(MultiNormal(), param, (;), FlattenDefault(; output = Float32))
+objectives = [
+    Objective(mod1, data, myparameter1),
+    Objective(mod2, data, myparameter2)
+]
+backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped]
+generating = [UpdateFalse(), UpdateTrue()]
+kernels = [OptimLBFG]
+
+for iter in eachindex(objectives)
+    _obj = objectives[iter]
+    _flattentype = _obj.model.info.reconstruct.default.output
+    @testset "Kernel construction and propagation, all models" begin
+        ## MCMC AD backends
+        for backend in backends
+            for generated in generating
+                for kernel in kernels
+                ## Define Optim default tuning parameter
+                    optimdefault = OptimDefault(; 
+                        GradientBackend = backend,
+                        generated = generated
+                    )
+                ## Optimkernels kernels
+                    constructor = OptimConstructor(kernel, keys(_obj.tagged.parameter), optimdefault)
+                ## Initialize kernel and check if it can be run
+                    optimizer = Optimizer(
+                            _RNG,
+                            kernel,
+                            _obj,
+                            optimdefault
+                    )
+                    _val1, _diag1 = propose(_RNG, optimizer, _obj)
+                    _val2, _diag2 = propose!(_RNG, optimizer, _obj.model, _obj.data)
+                ## Postprocessing
+                    @test _diag1 isa infer(_RNG, AbstractDiagnostics, optimizer, _obj.model, _obj.data)
+                    @test _diag2 isa infer(_RNG, AbstractDiagnostics, optimizer, _obj.model, _obj.data)
+                    @test _diag1.base.prediction isa infer(_RNG, optimizer, _obj.model, _obj.data)
+                    generated_model, generated_algorithm = BaytesOptim.infer_generated(_RNG, optimizer, _obj.model, _obj.data)
+                    @test _diag1.generated isa generated_model
+                    @test _diag1.generated_algorithm isa generated_algorithm
+                    BaytesOptim.result!(optimizer, BaytesOptim.get_result(optimizer))
+                    generate_showvalues(_diag1)()
+                ## Check if Optimizer also works with more/less data
+                    propose!(_RNG, optimizer, _obj.model, randn(_RNG, size(_obj.data, 1), size(_obj.data, 2)+10))
+                    propose!(_RNG, optimizer, _obj.model, randn(_RNG, size(_obj.data, 1), size(_obj.data, 2)-10))
+                end
+            end
+        end
+    end
+end
