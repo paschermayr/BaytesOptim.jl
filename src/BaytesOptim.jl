@@ -30,6 +30,8 @@ import BaytesCore:
     propose!,
     propagate,
     propagate!,
+    result!,
+    get_result,
     generate_showvalues,
     generate
 
