@@ -22,7 +22,7 @@ Show relevant diagnostic results.
 """
 function generate_showvalues(diagnostics::D) where {D<:DiagnosticsLBFG}
     return function showvalues()
-        return (:LBFG, "diagnostics"), (;)
+        return ((:LBFG, "diagnostics"), )
     end
 end
 

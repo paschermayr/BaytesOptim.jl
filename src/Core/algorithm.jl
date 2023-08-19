@@ -61,6 +61,8 @@ function Optimizer(
 ) where {M<:OptimKernel}
     @unpack GradientBackend, generated = default
 
+    ## Obtain initial parameter ~ per default use current parameter
+    default.init(_rng, kernel, objective)
     ## Initiate Optimization Algorithm and Algorithm-specific tuning struct
     optimconfig = init(AbstractConfiguration, kernel, objective; default.kernel...)
     ##	If a valid AD backend is provided, change it to an AutomaticDifftune Object
