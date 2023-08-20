@@ -14,6 +14,8 @@ using ModelWrappers
 using BaytesOptim
 using NLSolversBase, Optim
 
+using ForwardDiff, ReverseDiff
+
 #include("D:/OneDrive/1_Life/1_Git/0_Dev/Julia/modules/BaytesOptim.jl/src/BaytesOptim.jl")
 #using .BaytesOptim
 

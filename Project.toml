@@ -1,7 +1,7 @@
 name = "BaytesOptim"
 uuid = "c78c806d-0713-4f4e-8b87-f7023233ea83"
 authors = ["Patrick Aschermayr <p.aschermayr@gmail.com>"]
-version = "0.1.6"
+version = "0.1.7"
 
 [deps]
 ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
@@ -24,7 +24,7 @@ BaytesOptimOptimExt = ["NLSolversBase", "Optim"]
 [compat]
 ArgCheck = "2"
 BaytesCore = "0.2"
-BaytesDiff = "0.2"
+BaytesDiff = "0.3"
 DocStringExtensions = "0.8, 0.9"
 ModelWrappers = "0.5"
 NLSolversBase = "7"
@@ -36,8 +36,10 @@ julia = "^1.9"
 [extras]
 Bijectors = "76274a88-744f-5084-9051-94815aaf08c4"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Bijectors", "Distributions", "PDMats", "NLSolversBase", "Optim"]
+test = ["Test", "Bijectors", "Distributions", "PDMats", "NLSolversBase", "Optim", "ForwardDiff", "ReverseDiff"]
