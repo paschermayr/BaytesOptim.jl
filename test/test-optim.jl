@@ -172,14 +172,15 @@ myparameter1 = (:μ, :scale, :ρ)
 myparameter2 = (:ρ)
 
 mod1 = ModelWrapper(MultiNormal(), param, (;), FlattenDefault())
-mod2 = ModelWrapper(MultiNormal(), param, (;), FlattenDefault(; output = Float32))
+#mod2 = ModelWrapper(MultiNormal(), param, (;), FlattenDefault(; output = Float32))
 objectives = [
     Objective(mod1, data, myparameter1),
-    Objective(mod2, data, myparameter2)
+#    Objective(mod2, data, myparameter2)
 ]
 backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped]
+#backends = [:ReverseDiff, :ReverseDiffUntaped]
 generating = [UpdateFalse(), UpdateTrue()]
-kernels = [OptimLBFG]
+kernels = [OptimLBFG, SGD]
 
 for iter in eachindex(objectives)
     _obj = objectives[iter]
