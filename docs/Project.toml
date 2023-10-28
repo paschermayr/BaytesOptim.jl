@@ -1,3 +1,6 @@
 [deps]
 BaytesOptim = "c78c806d-0713-4f4e-8b87-f7023233ea83"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "1"
